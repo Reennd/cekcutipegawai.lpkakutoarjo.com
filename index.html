@@ -986,30 +986,70 @@
    <div class="container">
     <header class="header"><button class="theme-toggle" id="theme-toggle" aria-label="Toggle Dark Mode"> ☀️ </button>
         <style>
-    /* Style Dasar (Tampilan Awal Gradasi) */
+    /* 1. Style Dasar (Shared Style) */
     .judul-rekap {
-        font-weight: bold;
-        /* Warna Gradasi Ungu-Biru */
+        font-weight: 800; /* Sangat tebal */
+        text-align: center; /* Rata tengah (wajib untuk responsif yang rapi) */
+        line-height: 1.2; /* Jarak antar baris agar tidak terlalu renggang di HP */
+        margin: 10px 0;   /* Memberi jarak atas bawah */
+        padding: 0 15px;  /* Memberi jarak kiri kanan agar tidak nempel pinggir layar HP */
+        
+        /* Warna Gradasi Default (Ungu - Biru Gelap) */
         background: linear-gradient(to right, #5e0a85, #0a0a4a);
         -webkit-background-clip: text;
         background-clip: text;
         -webkit-text-fill-color: transparent;
+        color: transparent;
+        
         /* Bayangan */
         filter: drop-shadow(0px 3px 3px rgba(0,0,0,0.3));
-        /* Transisi halus saat berubah warna */
+        
+        /* Transisi halus */
         transition: all 0.3s ease-in-out;
     }
 
-    /* Style Saat Dark Mode Aktif (Menjadi Putih) */
-    /* Pastikan tombol Anda menambahkan class "dark-mode" ke tag <body> */
+    /* 2. Pengaturan Responsif Khusus (MAGIC CLAMP) */
+    
+    /* Untuk H1 (Judul Utama) */
+    #app-title {
+        /* Rumus: clamp(MINIMAL, IDEAL, MAKSIMAL) */
+        /* Minimal 24px, Ideal 5% lebar layar, Maksimal 42px */
+        font-size: clamp(24px, 5vw, 42px); 
+    }
+
+    /* Untuk H2 (Nama Lembaga - Teks Panjang) */
+    #institution-name {
+        /* Minimal 14px, Ideal 3% lebar layar, Maksimal 24px */
+        font-size: clamp(14px, 3vw, 24px);
+        margin-top: 5px;
+    }
+
+    /* 3. Style Saat Dark Mode Aktif (Menjadi Putih) */
     body.dark-mode .judul-rekap {
-        background: none; /* Hapus gradasi */
-        -webkit-text-fill-color: #ffffff; /* Ubah teks jadi Putih */
+        background: none; 
+        -webkit-text-fill-color: #ffffff; 
         color: #ffffff;
-        /* Ubah bayangan jadi glow putih agar terbaca di gelap */
-        filter: drop-shadow(0px 0px 8px rgba(255, 255, 255, 0.5));
+        /* Glow Putih agar terbaca jelas di background gelap */
+        filter: drop-shadow(0px 0px 10px rgba(255, 255, 255, 0.4));
+    }
+    
+    /* (Opsional) Style Body untuk demo */
+    body {
+        font-family: sans-serif;
+        margin: 0;
+        padding: 20px;
+        transition: background-color 0.3s;
+    }
+    body.dark-mode {
+        background-color: #1a1a1a;
     }
 </style>
+
+<script>
+    function toggleDarkMode() {
+        document.body.classList.toggle("dark-mode");
+    }
+</script>
 
 <h1 id="app-title" class="judul-rekap">
     Rekap Cuti Pegawai

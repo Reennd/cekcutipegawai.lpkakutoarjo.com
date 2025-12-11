@@ -976,6 +976,68 @@
                 grid-template-columns: 1fr auto auto;
             }
         }
+
+        /* ===== Footer Card ===== */
+.footer-card {
+    background-color: #2d3250;        /* Warna utama senada */
+    color: #ffffff;
+    width: 90%;
+    margin: 30px auto 15px auto;
+    padding: 10px 12px;               /* Ukuran kecil */
+    border-radius: 14px;              /* Sudut melengkung */
+    text-align: center;
+    font-size: 0.85rem;
+    border: 1px solid #424769;        /* Garis halus */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Hover: sedikit saja, tidak lebay */
+.footer-card:hover {
+    background-color: #363b5f;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+}
+
+/* Highlight nama */
+.footer-card .highlight {
+    color: #F6B17A;
+    font-weight: 600;
+}
+
+/* ===== Responsiveness ===== */
+@media (max-width: 768px) {   /* Tablet */
+    .footer-card {
+        width: 95%;
+        font-size: 0.8rem;
+        padding: 9px 10px;
+    }
+}
+
+@media (max-width: 480px) {   /* HP */
+    .footer-card {
+        width: 96%;
+        font-size: 0.78rem;
+        padding: 8px 9px;
+    }
+}
+
+/* ===== Footer Style When Dark Mode Active ===== */
+body.dark .footer-card {
+    background-color: #1f2235;     /* Gelap elegan */
+    border-color: #2d3250;
+    color: #e6e6e6;
+    box-shadow: 0 2px 6px rgba(255,255,255,0.05);
+}
+
+body.dark .footer-card:hover {
+    background-color: #25283f;
+    box-shadow: 0 3px 8px rgba(255,255,255,0.1);
+}
+
+body.dark .footer-card .highlight {
+    color: #F6B17A;   /* Tetap aksen utama */
+}
+
     </style>
   <style>@view-transition { navigation: auto; }</style>
   <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
@@ -1566,5 +1628,10 @@
 
         onConfigChange(defaultConfig);
     </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a9d1447b363a2a7',t:'MTc2NTAzNzY5Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a9d1447b363a2a7',t:'MTc2NTAzNzY5Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+ 
+ <footer class="footer-card">
+    <p>2025 | Made by <span class="highlight">Rendy Senna</span> and <span class="highlight">Rizki</span> | MagangHUB Batch II Kemnaker</p>
+</footer>
+ </body>
 </html>

@@ -2,6 +2,8 @@
 <html lang="id">
  <head>
   <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="image/logo-lpka.png">
+  <link rel="apple-touch-icon" href="image/logo-lpka.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Rekap Cuti Pegawai LPKA</title>
   <script src="/_sdk/element_sdk.js"></script>
@@ -1135,7 +1137,7 @@ body.dark-mode .footer-card .highlight {
     }
 </script>
      <div class="header-address">
-      Jl. Pangeran Diponegoro No.36 A, Kutoarjo, Kec. Kutoarjo, Kabupaten Purworejo, Jawa Tengah 54214
+      Jl. Pangeran Diponegoro No.36 A, Kutoarjo, Kec. Kutoarjo, Kabupaten Purworejo, Jawa Tengah 54215
      </div>
      <div class="badges-container">
       <div class="realtime-badge">
@@ -1191,7 +1193,7 @@ body.dark-mode .footer-card .highlight {
         🏖️
        </div>
        <div class="summary-label">
-        Cuti Tahunan
+        Cuti Tahunan Berjalan
        </div>
        <div class="summary-value" id="annual-leave">
         0
@@ -1629,9 +1631,151 @@ body.dark-mode .footer-card .highlight {
         onConfigChange(defaultConfig);
     </script>
  <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a9d1447b363a2a7',t:'MTc2NTAzNzY5Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
- 
+ <script>
+// Tombol export PDF
+const exportBtn = document.getElementById("export-pdf-btn");
+
+// Menampilkan tombol ketika data ditemukan
+function showExportButton() {
+    exportBtn.style.display = "inline-flex";
+}
+
+// Pencet tombol → buat PDF
+exportBtn.addEventListener("click", () => {
+    if (!currentData) return;
+
+    const employee = currentData.leaves[0]?.name || "-";
+    const quota = currentData.quota;
+
+    const summary = {
+        annual: document.getElementById("annual-leave").textContent,
+        sick: document.getElementById("sick-leave").textContent,
+        important: document.getElementById("important-leave").textContent,
+        remaining: document.getElementById("remaining-leave").textContent,
+    };
+
+    // Buat container HTML untuk PDF
+    const pdfContent = `
+        <div class="pdf-export-area">
+            <div class="pdf-title">REKAP CUTI PEGAWAI</div>
+            <div class="pdf-sub">Lembaga Pembinaan Khusus Anak (LPKA) Kelas 1 Kutoarjo</div>
+
+            <p><strong>Nama Pegawai :</strong> ${employee}</p>
+            <p><strong>Kuota Cuti Tahunan :</strong> ${quota} hari</p>
+            <p><strong>Sisa Cuti Tahunan :</strong> ${summary.remaining} hari</p>
+
+            <h4>Ringkasan:</h4>
+            <ul>
+                <li>Cuti Tahunan: ${summary.annual} hari</li>
+                <li>Cuti Sakit: ${summary.sick} hari</li>
+                <li>Cuti Alasan Penting: ${summary.important} hari</li>
+            </ul>
+
+            <h4>Detail Rekapan Cuti:</h4>
+            <table class="pdf-table">
+                <thead>
+                    <tr>
+                        <th>Jenis Cuti</th>
+                        <th>Periode</th>
+                        <th>Durasi</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${currentData.leaves.map(l => `
+                        <tr>
+                            <td>${l.type}</td>
+                            <td>${l.startDate} - ${l.endDate}</td>
+                            <td>${l.duration} hari</td>
+                            <td>${l.status}</td>
+                        </tr>
+                    `).join("")}
+                </tbody>
+            </table>
+
+            <br><br>
+            <small>Dicetak otomatis dari sistem Rekap Cuti LPKA – ${new Date().toLocaleString("id-ID")}</small>
+        </div>
+    `;
+
+    // Buat elemen sementara
+    const element = document.createElement("div");
+    element.innerHTML = pdfContent;
+
+    const opt = {
+        margin: 8,
+        filename: `Rekap Cuti - ${employee}.pdf`,
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+    };
+
+    html2pdf().from(element).set(opt).save();
+});
+
+function renderLeaveData(employeeName, leaveData, quota) {
+    const fullName = leaveData.length > 0 ? leaveData[0].name : employeeName;
+    document.getElementById('profile-name').textContent = fullName;
+
+    // --- LOGIKA PENGGABUNGAN DATA (MENCEGAH DOBEL) ---
+    // Kita gunakan Map untuk menyimpan data unik berdasarkan kombinasi:
+    // Nama + Jenis Cuti + Tanggal Mulai + Tanggal Selesai
+    const uniqueLeavesMap = new Map();
+
+    leaveData.forEach(leave => {
+        const key = `${leave.name}-${leave.type}-${leave.startDate}-${leave.endDate}`.toLowerCase().replace(/\s+/g, '');
+        
+        // Jika kunci belum ada, tambahkan ke Map
+        if (!uniqueLeavesMap.has(key)) {
+            uniqueLeavesMap.set(key, leave);
+        }
+    });
+
+    // Ubah kembali Map menjadi Array untuk diproses
+    const filteredLeaveData = Array.from(uniqueLeavesMap.values());
+    // --------------------------------------------------
+
+    const summary = calculateSummary(filteredLeaveData, quota);
+    const remainingLeave = quota - summary.annualLeave;
+
+    document.getElementById('annual-leave').textContent = summary.annualLeave;
+    document.getElementById('sick-leave').textContent = summary.sickLeave;
+    document.getElementById('important-leave').textContent = summary.importantLeave;
+    document.getElementById('annual-quota').textContent = quota;
+    document.getElementById('remaining-leave').textContent = remainingLeave;
+
+    const tbody = document.getElementById('leave-table-body');
+    tbody.innerHTML = '';
+
+    // Gunakan filteredLeaveData (data yang sudah bersih) untuk looping tabel
+    filteredLeaveData.forEach(leave => {
+        const tr = document.createElement('tr');
+        
+        let statusClass = 'status-menunggu';
+        const status = leave.status.toLowerCase();
+        if (status.includes('disetujui') || status.includes('setuju')) {
+            statusClass = 'status-disetujui';
+        } else if (status.includes('tolak')) {
+            statusClass = 'status-ditolak';
+        }
+
+        const startDate = formatDateShort(leave.startDate);
+        const endDate = formatDateShort(leave.endDate);
+        
+        tr.innerHTML = `
+            <td>${leave.name}</td>
+            <td>${leave.type}</td>
+            <td>${startDate} - ${endDate}</td>
+            <td>${leave.duration} hari</td>
+            <td><span class="status-badge ${statusClass}">${leave.status}</span></td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    showResults();
+}
+</script>
  <footer class="footer-card">
-    <p>2025 | Made by <span class="highlight">Rendy Senna</span> and <span class="highlight">Rizki</span> | Part of MagangHUB Batch II Kemnaker</p>
+    <p>2025 | Made by <span class="highlight">Rendy Senna</span> and <span class="highlight">Rizki</span> | MagangHUB Batch II Kemnaker</p>
 </footer>
  </body>
 </html>

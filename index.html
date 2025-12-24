@@ -5,7 +5,7 @@
   <link rel="icon" type="image/png" href="image/logo-lpka.png">
   <link rel="apple-touch-icon" href="image/logo-lpka.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rekap Cuti Pegawai LPKA</title>
+  <title>Monitoring Cuti Pegawai LPKA</title>
   <script src="/_sdk/element_sdk.js"></script>
   <style>
         body {
@@ -1107,6 +1107,10 @@ body.dark-mode .footer-card .highlight {
     body.dark-mode {
         background-color: #1a1a1a;
     }
+    .judul-rekap {
+    /* ... kode yang sudah ada ... */
+    text-transform: uppercase; /* Ini akan memaksa semua huruf menjadi kapital */
+}
 </style>
 
 <script>
@@ -1116,10 +1120,10 @@ body.dark-mode .footer-card .highlight {
 </script>
 
 <h1 id="app-title" class="judul-rekap">
-    Rekap Cuti Pegawai
+    MONITORING CUTI PEGAWAI
 </h1>
 
-<h2 id="institution-name" class="judul-rekap">
+<h2 id="institution-name" class="judul-rekap" style="text-transform: uppercase;">
     LEMBAGA PEMBINAAN KHUSUS ANAK (LPKA) KELAS 1 Kutoarjo
 </h2>
 <br>
@@ -1137,7 +1141,7 @@ body.dark-mode .footer-card .highlight {
     }
 </script>
      <div class="header-address">
-      Jl. Pangeran Diponegoro No.36 A, Kutoarjo, Kec. Kutoarjo, Kabupaten Purworejo, Jawa Tengah 54251
+      Jl. Pangeran Diponegoro No.36 A, Kutoarjo, Kec. Kutoarjo, Kabupaten Purworejo, Jawa Tengah 54215
      </div>
      <div class="badges-container">
       <div class="realtime-badge">
@@ -1284,7 +1288,7 @@ body.dark-mode .footer-card .highlight {
   </main>
   <script>
         const defaultConfig = {
-            app_title: 'Rekap Cuti Pegawai',
+            app_title: 'MONITORING CUTI PEGAWAI',
             institution_name: 'LEMBAGA PEMBINAAN KHUSUS ANAK (LPKA) KELAS 1 KUTOARJO',
             search_placeholder: 'Masukkan nama pegawai...',
             search_button_text: 'Cari Data',
@@ -1491,47 +1495,65 @@ body.dark-mode .footer-card .highlight {
         }
 
         function renderLeaveData(employeeName, leaveData, quota) {
-            const fullName = leaveData.length > 0 ? leaveData[0].name : employeeName;
-            document.getElementById('profile-name').textContent = fullName;
+    const fullName = leaveData.length > 0 ? leaveData[0].name : employeeName;
+    document.getElementById('profile-name').textContent = fullName;
 
-            const summary = calculateSummary(leaveData, quota);
-            const remainingLeave = quota - summary.annualLeave;
-
-            document.getElementById('annual-leave').textContent = summary.annualLeave;
-            document.getElementById('sick-leave').textContent = summary.sickLeave;
-            document.getElementById('important-leave').textContent = summary.importantLeave;
-            document.getElementById('annual-quota').textContent = quota;
-            document.getElementById('remaining-leave').textContent = remainingLeave;
-
-            const tbody = document.getElementById('leave-table-body');
-            tbody.innerHTML = '';
-
-            leaveData.forEach(leave => {
-                const tr = document.createElement('tr');
-                
-                let statusClass = 'status-menunggu';
-                const status = leave.status.toLowerCase();
-                if (status.includes('disetujui') || status.includes('setuju')) {
-                    statusClass = 'status-disetujui';
-                } else if (status.includes('tolak')) {
-                    statusClass = 'status-ditolak';
-                }
-
-                const startDate = formatDateShort(leave.startDate);
-                const endDate = formatDateShort(leave.endDate);
-                
-                tr.innerHTML = `
-                    <td>${leave.name}</td>
-                    <td>${leave.type}</td>
-                    <td>${startDate} - ${endDate}</td>
-                    <td>${leave.duration} hari</td>
-                    <td><span class="status-badge ${statusClass}">${leave.status}</span></td>
-                `;
-                tbody.appendChild(tr);
-            });
-
-            showResults();
+    // 1. PROSES PENYARINGAN DATA GANDA (DUPLICATE FILTERING)
+    // Menggunakan Map untuk memastikan kombinasi Jenis+Tgl Mulai+Tgl Selesai hanya muncul satu kali
+    const uniqueMap = new Map();
+    leaveData.forEach(item => {
+        const key = `${item.type}-${item.startDate}-${item.endDate}`.toLowerCase().replace(/\s/g, '');
+        if (!uniqueMap.has(key)) {
+            uniqueMap.set(key, item);
         }
+    });
+
+    // 2. PROSES PENGURUTAN BERDASARKAN BULAN/TANGGAL TERBARU (SORTING)
+    // Data diurutkan dari tanggal mulai (startDate) yang paling baru ke paling lama
+    const filteredAndSortedData = Array.from(uniqueMap.values()).sort((a, b) => {
+        return new Date(b.startDate) - new Date(a.startDate);
+    });
+
+    // 3. HITUNG RINGKASAN (SUMMARY) DARI DATA YANG SUDAH BERSIH
+    const summary = calculateSummary(filteredAndSortedData, quota);
+    const remainingLeave = quota - summary.annualLeave;
+
+    document.getElementById('annual-leave').textContent = summary.annualLeave;
+    document.getElementById('sick-leave').textContent = summary.sickLeave;
+    document.getElementById('important-leave').textContent = summary.importantLeave;
+    document.getElementById('annual-quota').textContent = quota;
+    document.getElementById('remaining-leave').textContent = remainingLeave;
+
+    // 4. RENDER KE TABEL
+    const tbody = document.getElementById('leave-table-body');
+    tbody.innerHTML = '';
+
+    filteredAndSortedData.forEach(leave => {
+        const tr = document.createElement('tr');
+        
+        let statusClass = 'status-menunggu';
+        const status = leave.status.toLowerCase();
+        if (status.includes('disetujui') || status.includes('setuju')) {
+            statusClass = 'status-disetujui';
+        } else if (status.includes('tolak')) {
+            statusClass = 'status-ditolak';
+        }
+
+        const startDate = formatDateShort(leave.startDate);
+        const endDate = formatDateShort(leave.endDate);
+        
+        tr.innerHTML = `
+            <td>${leave.name}</td>
+            <td>${leave.type}</td>
+            <td>${startDate} - ${endDate}</td>
+            <td>${leave.duration} hari</td>
+            <td><span class="status-badge ${statusClass}">${leave.status}</span></td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    showResults();
+}
 
         document.getElementById('search-form').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -1657,7 +1679,7 @@ exportBtn.addEventListener("click", () => {
     // Buat container HTML untuk PDF
     const pdfContent = `
         <div class="pdf-export-area">
-            <div class="pdf-title">REKAP CUTI PEGAWAI</div>
+            <div class="pdf-title">MONITORING CUTI PEGAWAI</div>
             <div class="pdf-sub">Lembaga Pembinaan Khusus Anak (LPKA) Kelas 1 Kutoarjo</div>
 
             <p><strong>Nama Pegawai :</strong> ${employee}</p>
